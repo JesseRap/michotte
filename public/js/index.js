@@ -53,7 +53,7 @@ scene.add(lightGroup);
 // ********************** //
 
 // MAKE FLOOR AND WALL
-const planeTexture = new THREE.TextureLoader().load('../img/checkerboard.png');
+const planeTexture = new THREE.TextureLoader().load('public/img/checkerboard.png');
 // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 // floorTexture.repeat.set( 1, 1 );
 const planeMaterial = new THREE.MeshLambertMaterial({
