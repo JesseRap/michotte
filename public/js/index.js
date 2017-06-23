@@ -1,7 +1,9 @@
 const BALL_RADIUS = 20;
 const WALL_SIZE = 1000;
 const BALL_SPEED = 3;
-let LAUNCH_DELAY = INITAL_LAUNCH_DELAY = 60;
+const INITAL_LAUNCH_DELAY = 20;
+let LAUNCH_DELAY = INITAL_LAUNCH_DELAY;
+const BIG_ANIMATION_DURATION = 300;
 
 // const canvasWidth = window.innerWidth - 100;
 // const canvasHeight = window.innerHeight - 100;
@@ -35,14 +37,16 @@ const axisHelper = new THREE.AxisHelper( 100 );
 scene.add( axisHelper );
 
 // LIGHTS
-var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-var pointLight = new THREE.PointLight(0xffffff, 1, 0.1)
-var pointLight2 = new THREE.PointLight(0xffffff)
+const lightGroup = new THREE.Group();
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const pointLight = new THREE.PointLight(0xffffff, 1, 0.1)
+const pointLight2 = new THREE.PointLight(0xffffff)
 pointLight.position.set(0,50,100);
 pointLight2.position.set(0,50,500);
-scene.add(ambientLight);
-scene.add(pointLight);
-scene.add(pointLight2);
+lightGroup.add(ambientLight);
+lightGroup.add(pointLight);
+lightGroup.add(pointLight2);
+scene.add(lightGroup);
 
 
 // ********************** //
@@ -76,18 +80,17 @@ var sphere2Material = new THREE.MeshPhongMaterial({color: 'blue'});
 const sphere1 = new THREE.Mesh(sphereGeometry, sphere1Material);
 const sphere2 = new THREE.Mesh(sphereGeometry, sphere2Material);
 
-const SPHERE2_X = -40;
-const SPHERE2_Y = 60;
-const SPHERE2_Z = 200;
 
-const SPHERE1_X = 20;
-const SPHERE1_Y = 30;
-const SPHERE1_Z = 270;
+sphere1.origin = { x: 20, y: 30, z: 270 }
+sphere2.origin = { x: -40, y: 60, z: 200 }
 
-sphere1.position.set(SPHERE1_X, SPHERE1_Y, SPHERE1_Z);
-sphere1.INITIAL_X = SPHERE1_X;
-sphere2.position.set(SPHERE2_X, SPHERE2_Y, SPHERE2_Z);
-sphere2.INITIAL_X = SPHERE2_X;
+const Y_DIFFERENCE = Math.abs(sphere2.origin.y - sphere1.origin.y);
+const Z_DIFFERENCE = Math.abs(sphere2.origin.z - sphere1.origin.z);
+
+
+sphere1.position.set(sphere1.origin.x, sphere1.origin.y, sphere1.origin.z);
+sphere2.position.set(sphere2.origin.x, sphere2.origin.y, sphere2.origin.z);
+
 group.add(sphere1);
 group.add(sphere2);
 
@@ -124,15 +127,15 @@ function delay() {
 
 
 sphere1.isLeavingOrigin = true;
-sphere1.destination = sphere1.INITIAL_X + 200;
+sphere1.destination = sphere1.origin.x + 200;
 sphere2.isLeavingOrigin = true;
-sphere2.destination = sphere2.INITIAL_X - 200;
+sphere2.destination = sphere2.origin.x - 200;
 
 function moveBallAway(ball, speed) {
-  ball.position.x = ball.position.x + (ball.destination > ball.INITIAL_X ? speed : -speed)
+  ball.position.x = ball.position.x + (ball.destination > ball.origin.x ? speed : -speed)
 }
 function moveBallBack(ball, speed) {
-  ball.position.x = ball.position.x + (ball.destination > ball.INITIAL_X ? -speed : speed)
+  ball.position.x = ball.position.x + (ball.destination > ball.origin.x ? -speed : speed)
 }
 
 
@@ -142,7 +145,7 @@ function moveBall(ball) {
   } else {
     ball.isLeavingOrigin = false;
     moveBallBack(ball, BALL_SPEED);
-    if (Math.abs(ball.position.x - ball.INITIAL_X) < 0.1) {
+    if (Math.abs(ball.position.x - ball.origin.x) < 0.1) {
       ball.isLeavingOrigin = true;
       nextAnimation();
     }
@@ -165,7 +168,32 @@ function doAnimation() {
 }
 
 
+function bigAnimation(duration) {
+  // MOVE RED BALL BACK
+  if (sphere1.position.z > sphere2.position.z) {
+    sphere1.position.z -= Z_DIFFERENCE / BIG_ANIMATION_DURATION;
+  }
+  // MOVE RED BALL UP
+  if (sphere1.position.y < sphere2.position.y) {
+    sphere1.position.y += Y_DIFFERENCE / BIG_ANIMATION_DURATION;
+  }
 
+  //ROTATE CAMERA
+  if (camera.rotation.x > -Math.PI / 2) {
+    camera.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
+    lightGroup.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
+  }
+  // PAN CAMERA
+  if (camera.position.y < 500) {
+    camera.position.y += 450 / BIG_ANIMATION_DURATION;
+    lightGroup.position.y += 450 / BIG_ANIMATION_DURATION;
+  }
+  // DOLLY CAMERA
+  if (camera.position.z > 200) {
+    camera.position.z -= 300 / BIG_ANIMATION_DURATION;
+    lightGroup.position.z -= 300 / BIG_ANIMATION_DURATION;
+  }
+}
 
 
 
@@ -183,6 +211,7 @@ function animate() {
   // ballToRight(sphere2);
   // moveBall1(sphere2);
   doAnimation();
+  setTimeout( ()=>{bigAnimation(BIG_ANIMATION_DURATION);}, 2000);
   // animateCamera();
 	renderer.render( scene, camera );
   requestAnimationFrame( animate );
