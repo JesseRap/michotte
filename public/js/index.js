@@ -1,17 +1,18 @@
 const BALL_RADIUS = 20;
-const WALL_SIZE = 1000;
-const BALL_SPEED = 3;
+const WALL_SIZE = 2000;
+const BALL_SPEED = 5;
 const INITAL_LAUNCH_DELAY = 0;
 let LAUNCH_DELAY = INITAL_LAUNCH_DELAY;
-const BIG_ANIMATION_DURATION = 300;
+const BIG_ANIMATION_DURATION = 600;
 const DELAY_SLIDER = document.getElementById('delaySlider');
+const BALL_DISTANCE = 200;
 
 // const canvasWidth = window.innerWidth - 100;
 // const canvasHeight = window.innerHeight - 100;
-// const canvasWidth = 500;
-// const canvasHeight = 500;
-const windowMin = Math.min(window.innerWidth, window.innerHeight);
-const canvasWidth = canvasHeight = windowMin;
+const canvasWidth = 700;
+const canvasHeight = 400;
+// const windowMin = Math.min(window.innerWidth, window.innerHeight);
+// const canvasWidth = canvasHeight = windowMin;
 
 
 // ********************** //
@@ -26,7 +27,8 @@ scene.add(group);
 
 // CAMERA
 const camera = new THREE.PerspectiveCamera( 30, canvasWidth / canvasHeight, 0.1, 1000 );
-camera.position.set(0,50,600);
+camera.origin = {x: 0, y: 50, z: 700}
+camera.position.set(camera.origin.x, camera.origin.y, camera.origin.z)
 // camera.lookAt(scene.position);
 
 // RENDERER
@@ -99,7 +101,7 @@ group.add(sphere2);
 
 // ********************** //
 
-// HELPER FUNCTIONS
+// USER RESPONSE FUNCTIONS
 
 let pressedKeys = {};
 let keyToResponse = {'p': 'YES', 'q': 'NO'};
@@ -126,20 +128,14 @@ window.addEventListener('keyup', (event) => {
 
 
 
-
-
-function animateCamera() {
-  if (camera.rotation.x > -Math.PI / 2) {
-    camera.rotation.x -= 0.01
-  }
-}
-
+// ANIMATION FUNCTIONS
 
 const animations = ['ball1', 'delay', 'ball2', 'delay'];
 let currentAnimationIdx = 0;
 let currentAnimation = animations[currentAnimationIdx];
 
 function nextAnimation() {
+  // Cycle to the next animation
   currentAnimationIdx = (currentAnimationIdx + 1) % animations.length;
   currentAnimation = animations[currentAnimationIdx];
 }
@@ -155,19 +151,22 @@ function delay() {
 
 
 sphere1.isLeavingOrigin = true;
-sphere1.destination = sphere1.origin.x + 200;
+sphere1.destination = sphere1.origin.x + BALL_DISTANCE;
 sphere2.isLeavingOrigin = true;
-sphere2.destination = sphere2.origin.x - 200;
+sphere2.destination = sphere2.origin.x - BALL_DISTANCE;
 
 function moveBallAway(ball, speed) {
+  // Move the ball away from the origin towards the destination
   ball.position.x = ball.position.x + (ball.destination > ball.origin.x ? speed : -speed)
 }
 function moveBallBack(ball, speed) {
+  // Move the ball back towards the origin
   ball.position.x = ball.position.x + (ball.destination > ball.origin.x ? -speed : speed)
 }
 
 
 function moveBall(ball) {
+  // Helper function for moving the balls back and forth
   if (ball.isLeavingOrigin && Math.abs(ball.position.x - ball.destination) > 1) {
     moveBallAway(ball, BALL_SPEED);
   } else {
@@ -181,7 +180,7 @@ function moveBall(ball) {
 }
 
 function doAnimation() {
-  console.log(currentAnimation);
+  // Do the current animation
   switch (currentAnimation) {
     case 'ball1':
       moveBall(sphere1);
@@ -195,6 +194,8 @@ function doAnimation() {
   }
 }
 
+
+// Big animation is the "camera sweep" effect
 let doBigAnimation = true;
 function bigAnimation(duration) {
   if (doBigAnimation) {
@@ -219,10 +220,11 @@ function bigAnimation(duration) {
     }
     // DOLLY CAMERA
     if (camera.position.z > 200) {
-      camera.position.z -= 400 / BIG_ANIMATION_DURATION;
+      camera.position.z -= (camera.origin.z - 200) / BIG_ANIMATION_DURATION;
       lightGroup.position.z -= 200 / BIG_ANIMATION_DURATION;
     }
     else {
+      // Only do this animation once, then disable to allow for orbit controls
       doBigAnimation = false;
     }
   }
@@ -234,27 +236,16 @@ function bigAnimation(duration) {
 let rotate = true;
 
 function animate() {
-  // if (rotate) {
-  //   group.rotation.x += 0.005;
-  // }
-  // if (group.rotation.x > Math.PI/2) {
-  //   rotate = false;
-  // }
-  // cube.rotation.y += 0.01;
-  // ballToRight(sphere2);
-  // moveBall1(sphere2);
   doAnimation();
   setTimeout( ()=>{bigAnimation(BIG_ANIMATION_DURATION);}, 2000);
-  // animateCamera();
 	renderer.render( scene, camera );
   requestAnimationFrame( animate );
 }
 animate();
 
+
 // CONTROLS
 controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-
 
 DELAY_SLIDER.addEventListener('change', (event) => {
   LAUNCH_DELAY = event.target.value * 60;
