@@ -47,7 +47,7 @@ const lightGroup = new THREE.Group();
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 const pointLight = new THREE.PointLight(0xffffff, 1, 0.1)
 const pointLight2 = new THREE.PointLight(0xffffff)
-pointLight.position.set(0,50,100);
+pointLight.position.set(camera.origin.x, camera.origin.y, camera.origin.z);
 pointLight2.position.set(0,50,500);
 lightGroup.add(ambientLight);
 lightGroup.add(pointLight);
@@ -222,7 +222,7 @@ function bigAnimation(duration) {
     // DOLLY CAMERA
     if (camera.position.z > 200) {
       camera.position.z -= (camera.origin.z - 200) / BIG_ANIMATION_DURATION;
-      lightGroup.position.z -= 200 / BIG_ANIMATION_DURATION;
+      pointLight.position.z -= (camera.origin.z - 200) / BIG_ANIMATION_DURATION;
     }
     else {
       // Only do this animation once, then disable to allow for orbit controls
