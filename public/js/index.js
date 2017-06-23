@@ -6,6 +6,7 @@ let LAUNCH_DELAY = INITAL_LAUNCH_DELAY;
 const BIG_ANIMATION_DURATION = 600;
 const DELAY_SLIDER = document.getElementById('delaySlider');
 const BALL_DISTANCE = 200;
+const USER_RESPONSE = document.getElementById('userResponse');
 
 // const canvasWidth = window.innerWidth - 100;
 // const canvasHeight = window.innerHeight - 100;
@@ -117,7 +118,7 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'q' || event.key === 'p') {
     delete pressedKeys[event.key];
     if (Object.keys(pressedKeys).length > 0) {
-      document.getElementById('userResponse').innerHTML = Object.keys(pressedKeys)[0];
+      document.getElementById('userResponse').innerHTML = keyToResponse[Object.keys(pressedKeys)[0]];
     } else {
       document.getElementById('userResponse').innerHTML = 'No Response';
     }
@@ -227,6 +228,7 @@ function bigAnimation(duration) {
       // Only do this animation once, then disable to allow for orbit controls
       doBigAnimation = false;
     }
+    recordUserResponse();
   }
 }
 
@@ -250,3 +252,12 @@ controls = new THREE.OrbitControls(camera, renderer.domElement);
 DELAY_SLIDER.addEventListener('change', (event) => {
   LAUNCH_DELAY = event.target.value * 60;
 })
+
+
+
+
+// RUN TRIAL
+let trialData = [];
+function recordUserResponse() {
+  trialData.push(USER_RESPONSE.innerHTML);
+}
