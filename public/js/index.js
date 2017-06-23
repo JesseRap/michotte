@@ -1,9 +1,10 @@
 const BALL_RADIUS = 20;
 const WALL_SIZE = 1000;
 const BALL_SPEED = 3;
-const INITAL_LAUNCH_DELAY = 20;
+const INITAL_LAUNCH_DELAY = 0;
 let LAUNCH_DELAY = INITAL_LAUNCH_DELAY;
 const BIG_ANIMATION_DURATION = 300;
+const DELAY_SLIDER = document.getElementById('delaySlider');
 
 // const canvasWidth = window.innerWidth - 100;
 // const canvasHeight = window.innerHeight - 100;
@@ -23,7 +24,7 @@ scene.add(group);
 
 // CAMERA
 const camera = new THREE.PerspectiveCamera( 30, canvasWidth / canvasHeight, 0.1, 1000 );
-camera.position.set(0,50,500);
+camera.position.set(0,50,600);
 // camera.lookAt(scene.position);
 
 // RENDERER
@@ -81,8 +82,8 @@ const sphere1 = new THREE.Mesh(sphereGeometry, sphere1Material);
 const sphere2 = new THREE.Mesh(sphereGeometry, sphere2Material);
 
 
-sphere1.origin = { x: 20, y: 30, z: 270 }
-sphere2.origin = { x: -40, y: 60, z: 200 }
+sphere1.origin = { x: BALL_RADIUS, y: 30, z: 270 }
+sphere2.origin = { x: -BALL_RADIUS, y: 60, z: 200 }
 
 const Y_DIFFERENCE = Math.abs(sphere2.origin.y - sphere1.origin.y);
 const Z_DIFFERENCE = Math.abs(sphere2.origin.z - sphere1.origin.z);
@@ -119,7 +120,7 @@ function nextAnimation() {
 function delay() {
   if (LAUNCH_DELAY === 0) {
     nextAnimation();
-    LAUNCH_DELAY = INITAL_LAUNCH_DELAY;
+    LAUNCH_DELAY = DELAY_SLIDER.value * 60;
   } else {
     LAUNCH_DELAY -= 1;
   }
@@ -167,31 +168,36 @@ function doAnimation() {
   }
 }
 
-
+let doBigAnimation = true;
 function bigAnimation(duration) {
-  // MOVE RED BALL BACK
-  if (sphere1.position.z > sphere2.position.z) {
-    sphere1.position.z -= Z_DIFFERENCE / BIG_ANIMATION_DURATION;
-  }
-  // MOVE RED BALL UP
-  if (sphere1.position.y < sphere2.position.y) {
-    sphere1.position.y += Y_DIFFERENCE / BIG_ANIMATION_DURATION;
-  }
+  if (doBigAnimation) {
+    // MOVE RED BALL BACK
+    if (sphere1.position.z > sphere2.position.z) {
+      sphere1.position.z -= Z_DIFFERENCE / BIG_ANIMATION_DURATION;
+    }
+    // MOVE RED BALL UP
+    if (sphere1.position.y < sphere2.position.y) {
+      sphere1.position.y += Y_DIFFERENCE / BIG_ANIMATION_DURATION;
+    }
 
-  //ROTATE CAMERA
-  if (camera.rotation.x > -Math.PI / 2) {
-    camera.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
-    lightGroup.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
-  }
-  // PAN CAMERA
-  if (camera.position.y < 500) {
-    camera.position.y += 450 / BIG_ANIMATION_DURATION;
-    lightGroup.position.y += 450 / BIG_ANIMATION_DURATION;
-  }
-  // DOLLY CAMERA
-  if (camera.position.z > 200) {
-    camera.position.z -= 300 / BIG_ANIMATION_DURATION;
-    lightGroup.position.z -= 300 / BIG_ANIMATION_DURATION;
+    //ROTATE CAMERA
+    if (camera.rotation.x > -Math.PI / 2) {
+      camera.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
+      lightGroup.rotation.x -= (Math.PI / 2) / BIG_ANIMATION_DURATION;
+    }
+    // PAN CAMERA
+    if (camera.position.y < 500) {
+      camera.position.y += 450 / BIG_ANIMATION_DURATION;
+      lightGroup.position.y += 450 / BIG_ANIMATION_DURATION;
+    }
+    // DOLLY CAMERA
+    if (camera.position.z > 200) {
+      camera.position.z -= 400 / BIG_ANIMATION_DURATION;
+      lightGroup.position.z -= 200 / BIG_ANIMATION_DURATION;
+    }
+    else {
+      doBigAnimation = false;
+    }
   }
 }
 
@@ -219,4 +225,10 @@ function animate() {
 animate();
 
 // CONTROLS
-controls = new THREE.OrbitControls(camera);
+controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+
+DELAY_SLIDER.addEventListener('change', (event) => {
+  LAUNCH_DELAY = event.target.value * 60;
+})
