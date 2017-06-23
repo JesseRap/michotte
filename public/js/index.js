@@ -8,8 +8,10 @@ const DELAY_SLIDER = document.getElementById('delaySlider');
 
 // const canvasWidth = window.innerWidth - 100;
 // const canvasHeight = window.innerHeight - 100;
-const canvasWidth = 500;
-const canvasHeight = 500;
+// const canvasWidth = 500;
+// const canvasHeight = 500;
+const windowMin = Math.min(window.innerWidth, window.innerHeight);
+const canvasWidth = canvasHeight = windowMin;
 
 
 // ********************** //
