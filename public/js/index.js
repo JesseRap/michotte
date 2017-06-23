@@ -101,6 +101,31 @@ group.add(sphere2);
 
 // HELPER FUNCTIONS
 
+let pressedKeys = {};
+let keyToResponse = {'p': 'YES', 'q': 'NO'};
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'q' || event.key === 'p') {
+    pressedKeys[event.key] = 1;
+    document.getElementById('userResponse').innerHTML = keyToResponse[event.key];
+  }
+})
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'q' || event.key === 'p') {
+    delete pressedKeys[event.key];
+    if (Object.keys(pressedKeys).length > 0) {
+      document.getElementById('userResponse').innerHTML = Object.keys(pressedKeys)[0];
+    } else {
+      document.getElementById('userResponse').innerHTML = 'No Response';
+    }
+  }
+
+})
+
+
+
+
 
 
 function animateCamera() {
