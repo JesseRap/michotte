@@ -1,0 +1,4 @@
+*.scss
+*.scssc
+*.css.map
+node_modules/
